@@ -47,17 +47,17 @@ for Alpha in alpha:
 		#REPORTED SCORE
 		#submisssions - g,g+1,...g+Normal_Assignment-1 , Reported_score - marks given by grader to those assignments
 		Reported_score =[]
-		for k in range(0,Assignments):
+		for grader in range(0,Assignments):
 			g = []
 			for i in range(0,Sample_normal):
-				j = (k+i)%Normal_Assignments
-				x = np.random.normal( true_score[j] + bias[k], 1.0/reliability[k] , 1)
+				paper = (grader+i)%Normal_Assignments
+				x = np.random.normal( true_score[paper] + bias[grader], 1.0/reliability[grader] , 1)
 				g.extend(x)
 			
 				
 			for i in range(0,Sample_probe):
-				j = (k + i)%Probe_Assignments + Normal_Assignments
-				x = np.random.normal( true_score[j] + bias[k], 1.0/reliability[k] , 1)
+				paper = (grader + i)%Probe_Assignments + Normal_Assignments
+				x = np.random.normal( true_score[paper] + bias[grader], 1.0/reliability[grader] , 1)
 				g.extend(x)
 			
 			Reported_score.append(g)
@@ -71,8 +71,8 @@ for Alpha in alpha:
 			test_data = Reported_score[grader][Sample_normal:]
 			true_data = []
 			for i in range(0,Sample_probe):
-				j  = (grader + i)%Probe_Assignments + Normal_Assignments
-				true_data.append(true_score[j])
+				paper  = (grader + i)%Probe_Assignments + Normal_Assignments
+				true_data.append(true_score[paper])
 
 			delta = []
 			for i in range(0,Sample_probe):
@@ -87,20 +87,18 @@ for Alpha in alpha:
 		#-----------------------Calculate Score-------------------------------
 		Calculate_score = []
 		for paper in range(0,Normal_Assignments):
-			j = Sample_normal - 1
-			temp = 0
+			num = 0
 			denom =0
 			for i in range(0,Sample_normal):
-				grader = paper-j
-				if grader<0:
-					grader = grader + Normal_Assignments
-				s = Reported_score[grader][j]
-				temp = temp + (s-expected_bias[grader])/expected_variance[grader]	
+				grader = (paper-i + Normal_Assignments) % Normal_Assignments
+				
+				s = Reported_score[grader][i]
+				num = num + (s-expected_bias[grader])/expected_variance[grader]	
 				denom = denom + 1.0/expected_variance[grader]
-				j = j-1
-			temp = temp + prior_mean/prior_var
+				
+			num = num + prior_mean/prior_var
 			denom = denom + 1.0/prior_var
-			temp = temp/denom
+			temp = num/denom
 			Calculate_score.append(temp)
 
 
@@ -127,11 +125,11 @@ for Alpha in alpha:
 
 		Reported_score =[]
 
-		for k in range(0,Assignments):
+		for grader in range(0,Assignments):
 			g = []
 			for i in range(0,Sample):
-				j = (k+i)%Assignments
-				x = np.random.normal( true_score[j] + bias[k], 1.0/reliability[k] , 1)
+				paper = (grader+i)%Assignments
+				x = np.random.normal( true_score[paper] + bias[grader], 1.0/reliability[grader] , 1)
 				g.extend(x)
 			
 			Reported_score.append(g)
@@ -148,7 +146,7 @@ for Alpha in alpha:
 			exp_reliabilty.append(100)
 
 		#-----------------------------------------------------
-		temp2 = []
+		Sample_Observations = []
 		for t in range(0,800):
 			
 			for paper in range(0,Assignments):
@@ -160,8 +158,9 @@ for Alpha in alpha:
 					denom = denom + exp_reliabilty[grader]
 
 				exp_score[paper] = random.normalvariate(num/denom, 1.0/denom)
-				if t>=80:
-					temp2.append(exp_score[paper])
+				
+			if t>=80:
+				Sample_Observations.append(exp_score)
 				
 
 			for grader in range(0,Assignments): #v = grader
@@ -187,10 +186,10 @@ for Alpha in alpha:
 				exp_bias[grader] = random.normalvariate(num/denom, 1.0/denom)
 
 		for paper in range(0,Assignments):
-			temp3 = 0
+			temp = 0
 			for l in range(0,720):
-				temp3 = temp3 + temp2[paper + l*Assignments]
-			exp_score[paper] = temp3/720
+				temp = temp + Sample_Observations[l][paper]
+			exp_score[paper] = temp/720
 		
 
 		error_gibs = 0
