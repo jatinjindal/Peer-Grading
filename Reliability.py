@@ -19,6 +19,7 @@ Y2 = [] # mean of the errors for Gibbs Algorithm
 std2 = [] # standard deviation for GIBBS
 Y3 = [] # mean of the error using AVERAGE
 std3 = [] # standard deviation using Average
+Total_Iterations = 10
 
 alpha = [1,2,3,4,5]
 
@@ -41,7 +42,7 @@ for Alpha in alpha:
 	Error_quest = [] #contains the observation for the following iterations resp
 	Error_gibs = []
 	Error_spot = []
-	for iteration in range(0,10): #for each case 10 observations are taken
+	for iteration in range(0,Total_Iterations): #for each case 10 observations are taken
 		#-------------------------------------------------------------------
 		# METHOD-1 (OUR ALGORITHM - SIMILAR TO QUEST)
 		#REPORTED SCORE
@@ -147,7 +148,10 @@ for Alpha in alpha:
 
 		#-----------------------------------------------------
 		Sample_Observations = []
-		for t in range(0,800):
+		Total_Gibs_Iterations = 800
+		Initial_Cut_off = 80
+		Remaining = Total_Gibs_Iterations - Initial_Cut_off
+		for t in range(0,Total_Gibs_Iterations):
 			
 			for paper in range(0,Assignments):
 				num = Gamma*prior_mean
@@ -159,7 +163,7 @@ for Alpha in alpha:
 
 				exp_score[paper] = random.normalvariate(num/denom, 1.0/denom)
 				
-			if t>=80:
+			if t>=Initial_Cut_off:
 				Sample_Observations.append(exp_score)
 				
 
@@ -187,9 +191,9 @@ for Alpha in alpha:
 
 		for paper in range(0,Assignments):
 			temp = 0
-			for l in range(0,720):
+			for l in range(0,Remaining):
 				temp = temp + Sample_Observations[l][paper]
-			exp_score[paper] = temp/720
+			exp_score[paper] = temp/Remaining
 		
 
 		error_gibs = 0
@@ -252,7 +256,7 @@ for Alpha in alpha:
 
 
 
-
+#--------------------------------------------------------------
 #plot the graph
 
 std1 = np.sqrt(std1)
