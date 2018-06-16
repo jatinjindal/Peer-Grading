@@ -148,8 +148,8 @@ for Alpha in alpha:
 			exp_reliabilty.append(100)
 
 		#-----------------------------------------------------
-
-		for t in range(0,1000):
+		temp2 = []
+		for t in range(0,800):
 			
 			for paper in range(0,Assignments):
 				num = Gamma*prior_mean
@@ -160,7 +160,9 @@ for Alpha in alpha:
 					denom = denom + exp_reliabilty[grader]
 
 				exp_score[paper] = random.normalvariate(num/denom, 1.0/denom)
-
+				if t>=80:
+					temp2.append(exp_score[paper])
+				
 
 			for grader in range(0,Assignments): #v = grader
 				x = Alpha + Sample/2.0
@@ -184,7 +186,12 @@ for Alpha in alpha:
 
 				exp_bias[grader] = random.normalvariate(num/denom, 1.0/denom)
 
-
+		for paper in range(0,Assignments):
+			temp3 = 0
+			for l in range(0,720):
+				temp3 = temp3 + temp2[paper + l*Assignments]
+			exp_score[paper] = temp3/720
+		
 
 		error_gibs = 0
 		for i in range(0,Assignments):
